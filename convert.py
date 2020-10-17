@@ -14,6 +14,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+
 def surface(lattice, indices, layers, vacuum=None, tol=1e-10):
     """Create surface from a given lattice and Miller indices.
 
@@ -107,13 +108,16 @@ def ext_gcd(a, b):
         x, y = ext_gcd(b, a % b)
         return y, x - y * (a // b)
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='param')
     parser.add_argument('--bulk', dest='bulk', type=str, default='POSCAR')
     parser.add_argument('--slab', dest='slab', type=str)
     parser.add_argument('--index', dest='index', type=int, nargs='+')
-    parser.add_argument('--output', dest='output', type=str, default='unfold.vasp' )
+    parser.add_argument('--output', dest='output',
+                        type=str, default='unfold.vasp')
     return parser.parse_args()
+
 
 args = parse_arguments()
 primitiveCell = mg.Structure.from_file(args.bulk)
@@ -124,7 +128,8 @@ conventionalCell.to(filename='POSCAR.conventional')
 bulk = read('POSCAR.conventional')
 os.remove('POSCAR.conventional')
 slab = surface(bulk, args.index, layers=2, vacuum=10)
-lattice, _, _ = spglib.standardize_cell(cell=(slab.get_cell(), slab.get_scaled_positions(), slab.get_atomic_numbers()),no_idealize=True)
+lattice, _, _ = spglib.standardize_cell(cell=(slab.get_cell(
+), slab.get_scaled_positions(), slab.get_atomic_numbers()), no_idealize=True)
 newLattice = []
 oldLattice = refSlab.lattice
 for length in [oldLattice.a, oldLattice.b]:
@@ -140,11 +145,13 @@ for i in range(len(lattice)):
         break
 newLattice = Lattice(np.array(newLattice))
 for x, y in zip(oldLattice.angles, newLattice.angles):
-    assert abs(x-y) < 1e-2, "The converted lattice has incorrect angles: {} compared with reference slab: {}".format(" ".join(str(x) for x in newLattice.angles), " ".join(str(x) for x in oldLattice.angles))
-newSlab = Structure(newLattice, [],[])
+    assert abs(x-y) < 1e-2, "The converted lattice has incorrect angles: {} compared with reference slab: {}".format(
+        " ".join(str(x) for x in newLattice.angles), " ".join(str(x) for x in oldLattice.angles))
+newSlab = Structure(newLattice, [], [])
 for atom in refSlab:
     newSlab.append(atom.specie, atom.frac_coords[:])
 Poscar(newSlab.get_sorted_structure()).write_file(args.output, direct=True)
 print("The transform matrix M is:")
-transformMat = newSlab.lattice.matrix.dot(np.linalg.inv(primitiveCell.lattice.matrix))
+transformMat = newSlab.lattice.matrix.dot(
+    np.linalg.inv(primitiveCell.lattice.matrix))
 print(transformMat.round())

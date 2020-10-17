@@ -1,8 +1,8 @@
 from unfold import make_kpath, removeDuplicateKpoints, find_K_from_k, save2VaspKPOINTS
 import numpy as np
 
- # The tranformation matrix between supercell and primitive cell.
-M = [[ 0.,  1., -1.,],[ 1., -1.,  0.],[-9., -9., -9.]]
+# The tranformation matrix between supercell and primitive cell.
+M = [[0.,  1., -1., ], [1., -1.,  0.], [-9., -9., -9.]]
 # high-symmetry point of a Hexagonal BZ in fractional coordinate
 kpts = [[1, 0.5, 0.5],            # X
         [0.0, 0.0, 0],            # G
